@@ -1,0 +1,4 @@
+fileignoreconfig:
+- filename: src/apiTest/resources/data.sql
+  checksum: 87266f28a2df49a39ae8f27c0057f7d8bcc54226331d8a5f96d2ab9c1096e060
+version: "1.0"

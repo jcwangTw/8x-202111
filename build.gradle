@@ -1,0 +1,127 @@
+buildscript {
+    repositories {
+        maven { url "https://maven.aliyun.com/repository/central" }
+    }
+
+    dependencies {
+        classpath "gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:1.7.1"
+        classpath "org.owasp:dependency-check-gradle:5.0.0"
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version '2.5.3'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    id 'idea'
+    id 'application'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+sourceSets {
+    componentTest {
+        compileClasspath += sourceSets.main.output + sourceSets.test.output
+        runtimeClasspath += sourceSets.main.output + sourceSets.test.output
+    }
+
+    apiTest {
+        resources {
+            srcDirs.add(file("src/apiTest/resources"))
+        }
+        compileClasspath += sourceSets.main.output + sourceSets.test.output
+        runtimeClasspath += sourceSets.main.output + sourceSets.test.output
+    }
+}
+
+configurations {
+    apiTestImplementation {
+        canBeResolved=true
+    }
+    componentTestImplementation {
+        canBeResolved=true
+    }
+
+    componentTestImplementation.extendsFrom testImplementation
+    componentTestRuntime.extendsFrom testRuntime
+
+    apiTestImplementation.extendsFrom testImplementation
+    apiRuntimeOnly.extendsFrom testRuntime
+
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'com.google.guava:guava:30.1.1-jre'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'com.h2database:h2'
+    testImplementation 'org.mock-server:mockserver-netty:5.11.2'
+    testImplementation 'org.mock-server:mockserver-client-java:5.11.2'
+    testImplementation 'org.mock-server:mockserver-junit-rule:5.11.2'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+}
+
+task componentTest(type: Test) {
+    description = 'Runs component tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.componentTest.output.classesDirs
+    classpath = sourceSets.componentTest.runtimeClasspath
+    shouldRunAfter test
+}
+
+
+task apiTest(type: Test) {
+    description = 'Runs Api tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.apiTest.output.classesDirs
+    classpath = sourceSets.apiTest.runtimeClasspath
+    shouldRunAfter componentTest
+}
+
+test {
+    useJUnitPlatform()
+}
+
+componentTest {
+    useJUnitPlatform()
+}
+
+apiTest {
+    useJUnitPlatform()
+}
+
+check.dependsOn componentTest
+check.dependsOn apiTest
+
+idea {
+    module {
+        testSourceDirs += file('src/apiTest/java')
+        testSourceDirs += file('src/apiTest/resources')
+        testSourceDirs += file('src/componentTest/java')
+        testSourceDirs += file('src/componentTest/resources')
+        scopes.TEST.plus += [configurations.apiTestImplementation]
+        scopes.TEST.plus += [configurations.apiRuntimeOnly]
+        scopes.TEST.plus += [configurations.componentTestImplementation]
+        scopes.TEST.plus += [configurations.componentTestRuntime]
+    }
+}
+
+dependencies {
+
+    implementation 'junit:junit:4.13.1'
+    apiTestImplementation(project)
+    componentTestImplementation(project)
+}

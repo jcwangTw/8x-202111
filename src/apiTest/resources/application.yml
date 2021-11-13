@@ -1,0 +1,27 @@
+spring:
+  sql:
+    init:
+      mode: always
+  datasource:
+    driverClassName: org.h2.Driver
+#    url: jdbc:h2:file:./db
+    username: sa
+    password:
+    url: jdbc:h2:mem:testdb
+  h2:
+    console:
+      path: /h2-console
+      enabled: true
+      settings:
+        web-allow-others: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
+
+service:
+  storage:
+    host: 'http://localhost:20212'
+    paths:
+      get-storage-status: '/storage-status/{storageId}'
