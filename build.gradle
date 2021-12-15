@@ -21,6 +21,12 @@ group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
+
+bootJar {
+    version ''
+    baseName '8x-demo-server'
+}
+
 sourceSets {
     componentTest {
         compileClasspath += sourceSets.main.output + sourceSets.test.output
