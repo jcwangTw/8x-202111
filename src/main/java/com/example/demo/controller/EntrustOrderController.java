@@ -19,5 +19,10 @@ public class EntrustOrderController {
         return storageService.getStorageStatus(oId);
     }
 
+    @GetMapping("/health-check")
+    public String healthCheck() {
+        return "health";
+    }
+
 
 }
